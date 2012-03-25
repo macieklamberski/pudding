@@ -9,7 +9,7 @@ class Jelly_Meta extends Jelly_Core_Meta {
 		// Include all Pudding behaviors
 		foreach ($behaviors as $behavior)
 		{
-			$this->behaviors(array(Jelly::behavior($behavior)));
+			$this->behaviors(array($behavior => Jelly::behavior($behavior)));
 		}
 
 		parent::finalize($model);
