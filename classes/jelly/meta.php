@@ -4,13 +4,13 @@ class Jelly_Meta extends Jelly_Core_Meta {
 
 	public function finalize($model)
 	{
+		$behaviors = Kohana::$config->load('pudding')->behaviors;
+
 		// Include all Pudding behaviors
-		$this->behaviors(array(
-			Jelly::behavior('dependable'),
-			Jelly::behavior('orderable'),
-			Jelly::behavior('sluggable'),
-			Jelly::behavior('translatable'),
-		));
+		foreach ($behaviors as $behavior)
+		{
+			$this->behaviors(array(Jelly::behavior($behavior)));
+		}
 
 		parent::finalize($model);
 	}
