@@ -10,7 +10,7 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 		// Find and gather all translatable fields in model
 		foreach ($meta->fields() as $name => $field)
 		{
-			if (isset($field->translatable) && $field->translatable)
+			if (isset($field->translate) && $field->translate)
 			{
 				// Remember translatable fields
 				$this->_fields[] = $name;
@@ -20,30 +20,30 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 		// Load and remember all languages if model is translatable
 		if ( ! empty($this->_fields) && empty(self::$_langs))
 		{
-			$langs = Jelly::query('lang')->select();
+			$langs = Kohana::$config->load('pudding')->languages;
 
-			foreach ($langs as $lang)
+			foreach ($langs as $lang_code => $lang_name)
 			{
-				self::$_langs[$lang->code] = $lang->name;
+				self::$_langs[$lang_code] = $lang_name;
 			}
 		}
 
 		// Cerate temporary translatable field
 		foreach ($meta->fields() as $name => $field)
 		{
-			if (in_array($name, self::$_langs))
+			if (in_array($name, $this->_fields))
 			{
 				// Setting main translation field as not in database
 				$field->in_db = FALSE;
 
 				// Creating mock fields for each lang
-				foreach (self::$_langs as $lang => $lang_name)
+				foreach (self::$_langs as $lang_code => $lang_name)
 				{
 					$new_field = clone $field;
 					$new_field->label .= ' ('.$lang_name.')';
 
 					$meta->fields(array(
-						$name.'_'.$lang => $new_field,
+						$name.'_'.$lang_code => $new_field,
 					));
 				}
 
@@ -74,7 +74,7 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 		}
 
 		$translations = DB::select()
-			->from($model->meta()->table().'_translations')
+			->from($model->meta()->table().'_i18n')
 			->where('record_id', '=', $model->id())
 			->as_object()
 			->execute();
@@ -83,9 +83,9 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 		{
 			foreach ($this->_fields as $field)
 			{
-				$model->{$field.'_'.$translation->lang_id} = $translation->{$field};
+				$model->{$field.'_'.$translation->lang_code} = $translation->{$field};
 
-				if ($translation->lang_id == I18n::lang())
+				if ($translation->lang_code == I18n::lang())
 				{
 					$model->{$field} = $translation->{$field};
 				}
@@ -95,36 +95,36 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 
 	public function model_after_save($model)
 	{
-		$updated_translations = array();
+		$updated_i18n = array();
 
 		foreach ($this->_fields as $field)
 		{
-			foreach (self::$_langs as $lang => $lang_name)
+			foreach (self::$_langs as $lang_code => $lang_name)
 			{
 				if ($model->meta()->field($field) instanceof Jelly_Field_File)
 				{
-					$updated_translations[$lang][$field] = $model->meta()->field($field.'_'.$lang)->save($model, $model->{$field.'_'.$lang}, $model->id());
+					$updated_i18n[$lang_code][$field] = $model->meta()->field($field.'_'.$lang_code)->save($model, $model->{$field.'_'.$lang_code}, $model->id());
 				}
 				else
 				{
-					$updated_translations[$lang][$field] = $model->{$field.'_'.$lang};
+					$updated_i18n[$lang_code][$field] = $model->{$field.'_'.$lang_code};
 				}
 			}
 		}
 
-		foreach ($updated_translations as $lang => $pairs)
+		foreach ($updated_i18n as $lang => $pairs)
 		{
 			$exists = (bool) DB::select()
-				->from($model->meta()->table().'_translations')
-				->where('lang_id', '=', $lang)
+				->from($model->meta()->table().'_i18n')
+				->where('lang_code', '=', $lang)
 				->where('record_id', '=', $model->id())
 				->execute()
 				->count();
 
 			if ($exists)
 			{
-				DB::update($model->meta()->table().'_translations')
-					->where('lang_id', '=', $lang)
+				DB::update($model->meta()->table().'_i18n')
+					->where('lang_code', '=', $lang)
 					->where('record_id', '=', $model->id())
 					->set($pairs)
 					->execute();
@@ -132,11 +132,11 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 			else
 			{
 				$values = array_merge(
-					array('lang_id' => $lang, 'record_id' => $model->id()),
-					$updated_translations[$lang]
+					array('lang_code' => $lang, 'record_id' => $model->id()),
+					$updated_i18n[$lang]
 				);
 
-				DB::insert($model->meta()->table().'_translations', array_keys($values))
+				DB::insert($model->meta()->table().'_i18n', array_keys($values))
 					->values($values)
 					->execute();
 			}
@@ -147,7 +147,7 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 	{
 		parent::model_before_delete($model);
 
-		DB::delete($model->meta()->table().'_translations')
+		DB::delete($model->meta()->table().'_i18n')
 			->where('record_id', '=', $model->id())
 			->execute();
 	}
