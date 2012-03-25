@@ -9,4 +9,5 @@ return array(
 		'en' => 'English',
 		'pl' => 'Polski',
 	),
+	'behaviors' => array('dependable', 'sluggable', 'translatable'),
 );
