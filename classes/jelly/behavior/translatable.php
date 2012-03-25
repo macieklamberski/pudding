@@ -20,12 +20,7 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 		// Load and remember all languages if model is translatable
 		if ( ! empty($this->_fields) && empty(self::$_langs))
 		{
-			$langs = Kohana::$config->load('pudding')->languages;
-
-			foreach ($langs as $lang_code => $lang_name)
-			{
-				self::$_langs[$lang_code] = $lang_name;
-			}
+			self::$_langs = Kohana::$config->load('pudding')->languages;
 		}
 
 		// Cerate temporary translatable field
@@ -74,7 +69,7 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 		}
 
 		$translations = DB::select()
-			->from($model->meta()->table().'_i18n')
+			->from($model->meta()->table().Kohana::$config->load('pudding')->i18n_table_suffix)
 			->where('record_id', '=', $model->id())
 			->as_object()
 			->execute();
@@ -115,7 +110,7 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 		foreach ($updated_i18n as $lang => $pairs)
 		{
 			$exists = (bool) DB::select()
-				->from($model->meta()->table().'_i18n')
+				->from($model->meta()->table().Kohana::$config->load('pudding')->i18n_table_suffix)
 				->where('lang_code', '=', $lang)
 				->where('record_id', '=', $model->id())
 				->execute()
@@ -123,7 +118,7 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 
 			if ($exists)
 			{
-				DB::update($model->meta()->table().'_i18n')
+				DB::update($model->meta()->table().Kohana::$config->load('pudding')->i18n_table_suffix)
 					->where('lang_code', '=', $lang)
 					->where('record_id', '=', $model->id())
 					->set($pairs)
@@ -136,7 +131,7 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 					$updated_i18n[$lang]
 				);
 
-				DB::insert($model->meta()->table().'_i18n', array_keys($values))
+				DB::insert($model->meta()->table().Kohana::$config->load('pudding')->i18n_table_suffix, array_keys($values))
 					->values($values)
 					->execute();
 			}
@@ -147,7 +142,7 @@ class Jelly_Behavior_Translatable extends Jelly_Behavior {
 	{
 		parent::model_before_delete($model);
 
-		DB::delete($model->meta()->table().'_i18n')
+		DB::delete($model->meta()->table().Kohana::$config->load('pudding')->i18n_table_suffix)
 			->where('record_id', '=', $model->id())
 			->execute();
 	}

@@ -10,4 +10,5 @@ return array(
 		'pl' => 'Polski',
 	),
 	'behaviors' => array('dependable', 'sluggable', 'translatable'),
+	'i18n_table_suffix' => '_i18n',
 );
