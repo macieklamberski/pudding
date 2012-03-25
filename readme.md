@@ -1,6 +1,7 @@
 # Pudding
 
 Pudding is an extension to popular ORM for Kohana - [Jelly](http://github.com/creatoro/jelly). It extends Jelly in the form of custom behaviors with many useful features:
+
 * More *Rails-ish* deletion of relationship-dependent records and files,
 * Few handy methods for query builder,
 * Ability to generate text for `Jelly_Field_Slug` field from content of other field,
