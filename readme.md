@@ -5,9 +5,33 @@ Pudding is an extension to popular ORM for Kohana - [Jelly](http://github.com/cr
 * More *Rails-ish* deletion of relationship-dependent records and files,
 * Few handy methods for query builder,
 * Ability to generate text for `Jelly_Field_Slug` field from content of other field,
-* Datetime field type.
+* Datetime field type,
+* **I18n support for models**.
 
 ## Features
+
+### I18n support for models
+
+One of the major feature of Pudding is support for storing multilingual content in Jelly models. To enable 18n for field, use flag `translate` set to `TRUE`:
+
+	'name' => Jelly::field('string', array(
+		'translate' => TRUE,
+		...
+	)),
+
+There also need to be created additional table in database to store translated text. Each model has to have separate table named the same as main table with `_i18n` suffix added at the end of name (eg. `posts_i18n`).
+
+Fetching translated data is simple. To get text for currently set language (based on lang set in `I18n::lang()`) use `$object->field_name` or `$object->get('field_name')` as usual. Getting text in specific language can be done by adding lang suffix to field name - `$object->field_name_lang` or `$object->get('field_name_lang')`. Examples:
+
+	I18n::lang('en');
+
+	// Getting text in default language
+	$object->name;
+	$object->get('name');
+
+	// Getting text in specific language
+	$object->name_pl;
+	$object->get('name_pl');
 
 ### Ruby on Rails-like deletion of dependent records and files
 
@@ -18,7 +42,7 @@ You need to remember though, that in case of the loop solution, each of records 
 To enable dependents deletion for relations and files use flag `dependent` set to `TRUE`:
 
 	'image' => Jelly::field('image', array(
-		'path'      => 'path/to/images',
+		'path'			=> 'path/to/images',
 		'dependent' => TRUE,
 		...
 	)),
@@ -35,7 +59,7 @@ And in case of relations:
 Pudding makes it possible to automatically generate text for `Jelly_Field_Slug` field from content of other field, when the model is saved in database. To set from which field slug is to be generated, use `source` property setting source field name as value:
 
 	'title' => Jelly::field('string'),
-	'slug'  => Jelly::field('slug', array(
+	'slug'	 => Jelly::field('slug', array(
 		'source' => 'title',
 	)),
 
