@@ -19,13 +19,24 @@ One of the major feature of Pudding is support for storing multilingual content 
 		...
 	)),
 
-There also need to be created additional table in database to store translated text. Each model has to have separate table named the same as main table with `_i18n` suffix added at the end of name (eg. `posts_i18n`).
+There also need to be created additional table in database to store translated text. Each model has to have separate table named the same as main table with `_i18n` suffix added at the end of name (eg. `posts_i18n`). Table schema should look like this:
+
+	CREATE TABLE `whatevers_i18n` (
+	  `record_id` int(11) NOT NULL,
+	  `lang_code` varchar(10) DEFAULT NULL,
+	  ...
+	  `name` varchar(255) NOT NULL,
+	  `content` text NOT NULL,
+	  ...
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+Two first fields (`record_id` and `lang_code`) are required for each `*_18n` table. The will store references to which record and language that translation refers. Other fields are model-specific and you create table field for each field from model which will be translated. This means that translated fields are not needed in the main table and they can be easily removed. Main table should contain only the fields that were not marked as translated.
 
 Fetching translated data is simple. To get text for currently set language (based on lang set in `I18n::lang()`) use `$object->field_name` or `$object->get('field_name')` as usual. Getting text in specific language can be done by adding lang suffix to field name - `$object->field_name_lang` or `$object->get('field_name_lang')`. Examples:
 
 	I18n::lang('en');
 
-	// Getting text in default language
+	// Getting text in default language (in that case English)
 	$object->name;
 	$object->get('name');
 
@@ -42,7 +53,7 @@ You need to remember though, that in case of the loop solution, each of records 
 To enable dependents deletion for relations and files use flag `dependent` set to `TRUE`:
 
 	'image' => Jelly::field('image', array(
-		'path'			=> 'path/to/images',
+		'path'      => 'path/to/images',
 		'dependent' => TRUE,
 		...
 	)),
@@ -59,7 +70,7 @@ And in case of relations:
 Pudding makes it possible to automatically generate text for `Jelly_Field_Slug` field from content of other field, when the model is saved in database. To set from which field slug is to be generated, use `source` property setting source field name as value:
 
 	'title' => Jelly::field('string'),
-	'slug'	 => Jelly::field('slug', array(
+	'slug'  => Jelly::field('slug', array(
 		'source' => 'title',
 	)),
 
