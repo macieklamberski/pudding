@@ -30,7 +30,7 @@ There also need to be created additional table in database to store translated t
 	  ...
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-Two first fields (`record_id` and `lang_code`) are required for each `*_18n` table. They will store references to which record and language that translation refers. Other fields are model-specific and you should create table field for each field from model which will be translated. This means that translated fields are not needed in the main table and they can be easily removed. Main table should contain only the fields that were not marked as translated.
+Two first fields (`record_id` and `lang_code`) are required for each `*_18n` table. They will store references to which record and language that translation refers. Other fields are model-specific and you should create table field for each field from model which will be translated. This means that translated fields are not needed in the main table and they can be easily removed. Main table should contain only the fields that were not marked `'translate' => TRUE`.
 
 Fetching translated data is simple. To get text for currently set language (based on lang set in `I18n::lang()`) use `$object->field_name` or `$object->get('field_name')` as usual. Getting text in specific language can be done by adding lang suffix to field name - `$object->field_name_lang` or `$object->get('field_name_lang')`. Examples:
 
