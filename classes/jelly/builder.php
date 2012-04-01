@@ -12,19 +12,19 @@ class Jelly_Builder extends Jelly_Core_Builder {
 		parent::__call($method, $args);
 	}
 
-	public function find()
+	public function select_one($throw = TRUE)
 	{
 		$record = $this->limit(1)->select();
 
-		if ($record->loaded())
+		if ( ! $record->loaded() && $throw)
 		{
-			return $record;
+			throw new HTTP_Exception_404(':model looked in query ":query" was not found in the database.', array(
+				':model' => ucfirst(Inflector::humanize($this->_model)),
+				':query' => Database::instance()->last_query,
+			));
 		}
 
-		throw new HTTP_Exception_404(':model looked in query ":query" was not found in the database.', array(
-			':model' => ucfirst(Inflector::humanize($this->_model)),
-			':query' => Database::instance()->last_query,
-		));
+		return $record;
 	}
 
 	public function paginate(Pagination $pagination)

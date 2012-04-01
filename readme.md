@@ -87,7 +87,7 @@ Datetime field type inherits from `Jelly_Field_Timestamp`, so every other proper
 Pudding extends default Jelly query builder with few handy methods:
 
 * `->by_field_name('value')` - which is the shortcut form of `->where('field_name', '=', 'value')`;
-* `->find()` - similary to Ruby on Rails, this method returns single record matching given conditions. If there's no record found, `HTTP_Exception_404` exception is thrown;
+* `->select_one($throw = TRUE)` - returns single record matching given conditions. If there's no record found, by default `HTTP_Exception_404` exception is thrown. You can change it by setting $throw parameter to `FALSE`;
 * `->paginate($pagination_object)` - to shorten amount of code written to paginate records, you can use this method passing previously defined Pagination object. Method requires Pagination object as its paramter.
 
 ## More yummy?
