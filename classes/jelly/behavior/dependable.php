@@ -23,7 +23,7 @@ class Jelly_Behavior_Dependable extends Jelly_Behavior {
 					if (isset($field->dependent) && $field->dependent)
 					{
 						$filename = $model->{$name};
-						$images = array_merge($field->thumbnails, array($field));
+						$images = array_merge($field->thumbnails, array((array) $field));
 
 						foreach ($images as $image)
 						{
