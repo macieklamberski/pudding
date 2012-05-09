@@ -26,6 +26,12 @@ class Jelly_Model extends Jelly_Core_Model {
 
 		foreach ($this->meta()->fields() as $name => $field)
 		{
+			// Disable _upload validation if file not uploaded (not required)
+			if ($field instanceof Jelly_Field_File && ! Upload::not_empty((array) $this->{$name}))
+			{
+				array_pop($this->meta()->field($name)->rules);
+			}
+
 			if ( ! $field->in_db && $field instanceof Jelly_Field_File)
 			{
 				if (isset($this->_changed[$name]) && is_string($this->_changed[$name]))
