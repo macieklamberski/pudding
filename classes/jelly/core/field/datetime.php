@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-abstract class Jelly_Core_Field_Datetime extends Jelly_Field {
+abstract class Jelly_Core_Field_Datetime extends Jelly_Core_Field_Timestamp {
 
 	/**
 	 * @var  string  a date formula representing the time in the database
