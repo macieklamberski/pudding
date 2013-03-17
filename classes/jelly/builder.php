@@ -9,7 +9,7 @@ class Jelly_Builder extends Jelly_Core_Builder {
 			return (isset($args[0])) ? $this->where($matches[1], '=', $args[0]) : $this;
 		}
 
-		parent::__call($method, $args);
+		return parent::__call($method, $args);
 	}
 
 	public function select_one($throw = TRUE)
